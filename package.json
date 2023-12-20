@@ -1,0 +1,25 @@
+{
+  "name": "walnut-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.mjs",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./vite-plugin": "./dist/vite-plugin.mjs"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "unbuild",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-morph": "^21.0.1"
+  },
+  "devDependencies": {
+    "unbuild": "^2.0.0"
+  }
+}
