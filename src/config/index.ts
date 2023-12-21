@@ -1,6 +1,8 @@
 import * as path from "path";
 import * as fs from "fs";
 
+import { consola } from "consola";
+
 export function findConfig(cwd: string): string {
     // We will add some search capabilities later on
     const cur = path.resolve(cwd, "./walnut.config.ts");

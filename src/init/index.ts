@@ -1,6 +1,8 @@
 import * as path from "path";
 import * as fs from "fs";
 
+import { consola } from "consola";
+
 import { findConfig, createConfig } from "../config";
 
 export function runInit(): void {
@@ -11,6 +13,7 @@ export function runInit(): void {
         cfgPath = path.resolve(cwd, "./walnut.config.ts");
         createConfig(cfgPath);
     }
+
 
 
 }
