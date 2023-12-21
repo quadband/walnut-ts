@@ -1,7 +1,4 @@
-//@ts-ignore
 import type { WalnutKey } from "./walnut-key"; //DO NOT REMOVE OR CHANGE ME
-
-
 
 export class Resolver<T> {
 
