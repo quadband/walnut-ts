@@ -13,8 +13,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "unbuild",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "unbuild"
   },
   "bin": {
     "wts": "./dist/bin.mjs"
