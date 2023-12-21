@@ -1,0 +1,1 @@
+export type WalnutKey = "dev" | "test" | "prod"; // It is important that this lives in its own file

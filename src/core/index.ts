@@ -1,7 +1,7 @@
 //@ts-ignore
-//import type { WalnutKey } from "../../../../walnut.config"; //DO NOT REMOVE OR CHANGE ME
+import type { WalnutKey } from "./walnut-key"; //DO NOT REMOVE OR CHANGE ME
 
-type WalnutKey = "dev" | "test" | "prod";
+
 
 export class Resolver<T> {
 
