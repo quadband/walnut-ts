@@ -1,7 +1,7 @@
 {
   "name": "walnut-ts",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Tools for TypeScript",
   "main": "./dist/index.mjs",
   "type": "module",
   "types": "dist/index.d.ts",
