@@ -14,7 +14,8 @@ Walnut.setCondition("dev");
 export const exampleResolver = Walnut.makeResolver<string>("uniqueLabel", ()=>{
     return "Here is the resolved value!";
 });
-
+```
+```typescript
 // src/index.tsx
 import { $Val, $PVal, $Resolve } from "walnut-ts";
 import { $Walnut } from "walnut-ts/jsx";
