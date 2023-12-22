@@ -11,7 +11,6 @@ import {
     ImportDeclaration,
     JsxElement,
     Identifier,
-    forEachStructureChild,
     JsxElementStructure
 } from "ts-morph";
 
