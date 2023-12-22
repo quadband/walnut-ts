@@ -15,7 +15,7 @@ export function $Resolve<T>(resolver: Resolver<T>): T {
     return null as T;
 }
 
-export function $OnlyWhenVal<T>(k: WalnutKey | WalnutKey[], t: T): T {
+export function $OnlyWhen<T>(k: WalnutKey | WalnutKey[], t: T): T {
     notTransformed();
     return null as T;
 }
