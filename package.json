@@ -7,7 +7,8 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": "./dist/index.mjs",
-    "./vite-plugin": "./dist/vite-plugin.mjs"
+    "./vite-plugin": "./dist/vite-plugin.mjs",
+    "./jsx": "./dist/jsx.mjs"
   },
   "files": [
     "dist"

@@ -8,7 +8,11 @@ import {
     PropertyDeclaration, 
     ObjectLiteralExpression, 
     PropertyAssignment,
-    ImportDeclaration
+    ImportDeclaration,
+    JsxElement,
+    Identifier,
+    forEachStructureChild,
+    JsxElementStructure
 } from "ts-morph";
 
 let __project: Project;
@@ -25,7 +29,6 @@ export function transformer(code: string, id: string): string {
     if(!toolDecs.length) return;
     
     toolDecs.forEach(dec => runTool(dec, src));
-
     toolDecs.forEach(dec => removeDec(dec));
 
     return src.getText();
@@ -48,20 +51,43 @@ function runTool(dec: ImportDeclaration, src: SourceFile) {
         const nameNode = namedImport.getNameNode();
         const name = nameNode.getText();
 
-        const refs = nameNode.findReferencesAsNodes()
-            .filter(n => n.getSourceFile() === src
-                && !Node.isImportSpecifier(n.getParentOrThrow()));
+        if(name === "$Walnut") runJsxTool(nameNode, name, src);
+        else runCallExpressionTool(nameNode, name, src);
+    }
+}
 
+function runJsxTool(nameNode: Identifier, name: string, src: SourceFile){
+    const refs = getReferenceNodes(nameNode, src);
 
-        for(const ref of refs){
-            const callExp = extractCallExpression(ref);
-            const varDec = extractVariableOrPropertyDeclaration(ref);
+    const jsxElements: Set<JsxElement> = new Set();
 
-            const args = callExp.getArguments();
+    for(const ref of refs){
+        const jsxElement = extractJsxElement(ref);
+        if(!jsxElements.has(jsxElement)) jsxElements.add(jsxElement);
+    }
 
-            if(name == "$Val" || name == "$PVal") runVal(varDec, args);
-            else if(name == "$Resolve") runResolve(varDec, args, src);
-        }
+    jsxElements.forEach((jsxElement)=>{
+        const jsxStruct = jsxElement.getStructure();
+
+        const key = getJsxStructKey(jsxStruct);
+        if((Array.isArray(key) && key.includes(Walnut.condition)) || key == Walnut.condition) 
+            jsxElement.replaceWithText(jsxStruct.bodyText);
+        else jsxElement.replaceWithText("");
+    });
+
+}
+
+function runCallExpressionTool(nameNode: Identifier, name: string, src: SourceFile ){
+    const refs = getReferenceNodes(nameNode, src);
+
+    for(const ref of refs){
+        const callExp = extractCallExpression(ref);
+        const varDec = extractVariableOrPropertyDeclaration(ref);
+
+        const args = callExp.getArguments();
+
+        if(name == "$Val" || name == "$PVal") runVal(varDec, args);
+        else if(name == "$Resolve") runResolve(varDec, args, src);
     }
 }
 
@@ -169,6 +195,47 @@ function handleResolver(refs: Node[]): string {
     return res;
 }
 
+function getJsxStructKey(jsxStruct: JsxElementStructure): string | string[] {
+    let key;
+    if(jsxStruct.attributes && Array.isArray(jsxStruct.attributes)){
+        jsxStruct.attributes.forEach((att)=>{
+            if(att.kind == 20 && att.name == "key"){
+                key = att.initializer;
+            } 
+        })
+    }
+    if(!key) return null;
+    key = checkAndStripBraces(key);
+    key = checkAndConvertArrayInitializer(key);
+    if(Array.isArray(key)) return key;
+    else return sanitizeStringInitializer(key);
+}
+
+function checkAndConvertArrayInitializer(s: string): string | string[] {
+    const fc = s.charAt(0);
+    if(fc == "[") {
+        const arr = [];
+        let str = s.substring(1, s.length-1);
+        const sArr = str.split(",").map((sA)=>{
+            return sanitizeStringInitializer(sA.trim());
+        });
+        return sArr;
+    } 
+    return s;
+}
+
+function sanitizeStringInitializer(s: string): string {
+    const fc = s.charAt(0);
+    if(fc == '"' || fc == "'" || fc == "`") return s.substring(1, s.length-1);
+    return s;
+}
+
+function checkAndStripBraces(s: string): string {
+    const fc = s.charAt(0);
+    if(fc == "{") return s.substring(1, s.length-1).trim();
+    return s;
+}
+
 // This is done because TypeScript is looking for the exact expression
 function tryGetStringProp(c: string, opts: ObjectLiteralExpression): PropertyAssignment {
     let prop;
@@ -197,6 +264,12 @@ export function checkIfConfig(id: string): boolean {
 
 // Helpers
 // Should probably move this
+function getReferenceNodes(nameNode: Identifier, src: SourceFile) {
+    return nameNode.findReferencesAsNodes()
+            .filter(n => n.getSourceFile() === src
+            && !Node.isImportSpecifier(n.getParentOrThrow()));
+}
+
 export function extractCallExpression(node: Node): CallExpression {
 	if(Node.isCallExpression(node)) return node;
 	return extractCallExpression(node.getParentOrThrow());
@@ -210,4 +283,9 @@ export function extractVariableOrPropertyDeclaration(node: Node): VariableDeclar
 export function extractImportDeclaration(node: Node): ImportDeclaration {
     if(Node.isImportDeclaration(node)) return node;
     return extractImportDeclaration(node.getParentOrThrow());
+}
+
+export function extractJsxElement(node: Node): JsxElement {
+    if(Node.isJsxElement(node)) return node;
+    return extractJsxElement(node.getParentOrThrow());
 }
